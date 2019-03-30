@@ -16,8 +16,15 @@ public class main_menu extends javax.swing.JFrame {
     /**
      * Creates new form main_menu
      */
+    ReceiverFrame receiverChild;
+    SenderFrame senderChild;
+        
     public main_menu() {
         initComponents();
+        receiverChild = new ReceiverFrame(this);
+        receiverChild.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        senderChild = new SenderFrame(this);
+        senderChild.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
     }
 
     /**
@@ -32,14 +39,6 @@ public class main_menu extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         sendB = new javax.swing.JButton();
         receiveB = new javax.swing.JButton();
-        yourIPL = new javax.swing.JLabel();
-        yourPortL = new javax.swing.JLabel();
-        portsys = new javax.swing.JTextField();
-        IPsys = new javax.swing.JTextField();
-        recIP = new javax.swing.JLabel();
-        recport = new javax.swing.JLabel();
-        recportin = new javax.swing.JTextField();
-        recIPin = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -57,43 +56,6 @@ public class main_menu extends javax.swing.JFrame {
             }
         });
 
-        yourIPL.setText("Your IP:");
-
-        yourPortL.setText("port no.:");
-
-        portsys.setText("default : 80");
-        portsys.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                portsysActionPerformed(evt);
-            }
-        });
-
-        IPsys.setEditable(false);
-        IPsys.setText("YourIP goes here");
-        IPsys.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                IPsysActionPerformed(evt);
-            }
-        });
-
-        recIP.setText("receiver IP:");
-
-        recport.setText("port no.:");
-
-        recportin.setText("default : 80");
-        recportin.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                recportinActionPerformed(evt);
-            }
-        });
-
-        recIPin.setText("receiver IP goes here");
-        recIPin.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                recIPinActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -103,51 +65,17 @@ public class main_menu extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(receiveB)
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(yourIPL)
-                            .addComponent(yourPortL))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(IPsys)
-                            .addComponent(portsys, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(112, 112, 112))
+                        .addGap(112, 371, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(sendB, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(recIP, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(recport, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(recIPin)
-                            .addComponent(recportin, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(51, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(yourIPL)
-                    .addComponent(IPsys, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(yourPortL)
-                    .addComponent(portsys, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(58, 58, 58)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(recIP)
-                    .addComponent(recIPin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(recport)
-                    .addComponent(recportin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(71, 71, 71))
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(60, 60, 60)
                 .addComponent(receiveB)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 91, Short.MAX_VALUE)
                 .addComponent(sendB)
                 .addGap(85, 85, 85))
         );
@@ -167,28 +95,16 @@ public class main_menu extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void sendBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendBActionPerformed
-        // TODO add your handling code here:
+        setVisible(false);
+        senderChild.setVisible(true);
     }//GEN-LAST:event_sendBActionPerformed
 
     private void receiveBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_receiveBActionPerformed
-        // TODO add your handling code here:
+        
+        setVisible(false);
+        receiverChild.setVisible(true);
+        
     }//GEN-LAST:event_receiveBActionPerformed
-
-    private void portsysActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_portsysActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_portsysActionPerformed
-
-    private void IPsysActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_IPsysActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_IPsysActionPerformed
-
-    private void recportinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_recportinActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_recportinActionPerformed
-
-    private void recIPinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_recIPinActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_recIPinActionPerformed
 
     /**
      * @param args the command line arguments
@@ -218,25 +134,15 @@ public class main_menu extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new main_menu().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new main_menu().setVisible(true);
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextField IPsys;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JTextField portsys;
-    private javax.swing.JLabel recIP;
-    private javax.swing.JTextField recIPin;
     private javax.swing.JButton receiveB;
-    private javax.swing.JLabel recport;
-    private javax.swing.JTextField recportin;
     private javax.swing.JButton sendB;
-    private javax.swing.JLabel yourIPL;
-    private javax.swing.JLabel yourPortL;
     // End of variables declaration//GEN-END:variables
 
 }

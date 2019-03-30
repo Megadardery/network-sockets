@@ -43,30 +43,10 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" attributes="0">
                           <Component id="receiveB" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace type="separate" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="yourIPL" alignment="0" min="-2" max="-2" attributes="0"/>
-                              <Component id="yourPortL" alignment="0" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <EmptySpace pref="18" max="32767" attributes="0"/>
-                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                              <Component id="IPsys" max="32767" attributes="0"/>
-                              <Component id="portsys" min="-2" pref="180" max="-2" attributes="0"/>
-                          </Group>
-                          <EmptySpace min="-2" pref="112" max="-2" attributes="0"/>
+                          <EmptySpace min="112" pref="371" max="32767" attributes="0"/>
                       </Group>
                       <Group type="102" attributes="0">
                           <Component id="sendB" min="-2" pref="75" max="-2" attributes="0"/>
-                          <EmptySpace type="separate" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                              <Component id="recIP" max="32767" attributes="0"/>
-                              <Component id="recport" max="32767" attributes="0"/>
-                          </Group>
-                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                              <Component id="recIPin" alignment="0" max="32767" attributes="0"/>
-                              <Component id="recportin" alignment="0" min="-2" pref="180" max="-2" attributes="0"/>
-                          </Group>
                           <EmptySpace max="32767" attributes="0"/>
                       </Group>
                   </Group>
@@ -75,33 +55,10 @@
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Group type="102" alignment="1" attributes="0">
-                  <EmptySpace pref="51" max="32767" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="yourIPL" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="IPsys" alignment="3" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="yourPortL" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="portsys" alignment="3" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <EmptySpace min="-2" pref="58" max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="recIP" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="recIPin" alignment="3" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="recport" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="recportin" alignment="3" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <EmptySpace min="-2" pref="71" max="-2" attributes="0"/>
-              </Group>
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace min="-2" pref="60" max="-2" attributes="0"/>
                   <Component id="receiveB" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace max="32767" attributes="0"/>
+                  <EmptySpace pref="91" max="32767" attributes="0"/>
                   <Component id="sendB" min="-2" max="-2" attributes="0"/>
                   <EmptySpace min="-2" pref="85" max="-2" attributes="0"/>
               </Group>
@@ -123,59 +80,6 @@
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="receiveBActionPerformed"/>
-          </Events>
-        </Component>
-        <Component class="javax.swing.JLabel" name="yourIPL">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Your IP:"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JLabel" name="yourPortL">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="port no.:"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JTextField" name="portsys">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="default : 80"/>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="portsysActionPerformed"/>
-          </Events>
-        </Component>
-        <Component class="javax.swing.JTextField" name="IPsys">
-          <Properties>
-            <Property name="editable" type="boolean" value="false"/>
-            <Property name="text" type="java.lang.String" value="YourIP goes here"/>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="IPsysActionPerformed"/>
-          </Events>
-        </Component>
-        <Component class="javax.swing.JLabel" name="recIP">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="receiver IP:"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JLabel" name="recport">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="port no.:"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JTextField" name="recportin">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="default : 80"/>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="recportinActionPerformed"/>
-          </Events>
-        </Component>
-        <Component class="javax.swing.JTextField" name="recIPin">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="receiver IP goes here"/>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="recIPinActionPerformed"/>
           </Events>
         </Component>
       </SubComponents>
