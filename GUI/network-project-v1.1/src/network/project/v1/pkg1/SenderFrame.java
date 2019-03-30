@@ -7,6 +7,10 @@ package network.project.v1.pkg1;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 
@@ -31,6 +35,11 @@ public class SenderFrame extends javax.swing.JFrame {
                 parent.setVisible(true);
             }
         });
+        try {
+            hostIP.setText(Server.getIPAddress());
+        } catch (UnknownHostException ex) {
+            Logger.getLogger(SenderFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -43,7 +52,7 @@ public class SenderFrame extends javax.swing.JFrame {
     private void initComponents() {
 
         jFrame1 = new javax.swing.JFrame();
-        sendFile = new javax.swing.JButton();
+        btnSend = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         hostIP = new javax.swing.JTextField();
@@ -68,12 +77,17 @@ public class SenderFrame extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        sendFile.setText("Send");
-        sendFile.setToolTipText("Check connection first");
-        sendFile.setEnabled(false);
-        sendFile.addComponentListener(new java.awt.event.ComponentAdapter() {
+        btnSend.setText("Send");
+        btnSend.setToolTipText("Check connection first");
+        btnSend.setEnabled(false);
+        btnSend.addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentShown(java.awt.event.ComponentEvent evt) {
-                sendFileComponentShown(evt);
+                btnSendComponentShown(evt);
+            }
+        });
+        btnSend.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSendActionPerformed(evt);
             }
         });
 
@@ -138,7 +152,7 @@ public class SenderFrame extends javax.swing.JFrame {
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jButton1)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(sendFile, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(btnSend, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(127, 127, 127)
                                 .addComponent(lblStatus)
@@ -184,7 +198,7 @@ public class SenderFrame extends javax.swing.JFrame {
                     .addComponent(txtLocation, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 59, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(sendFile, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnSend, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton1))
                 .addContainerGap())
         );
@@ -192,18 +206,32 @@ public class SenderFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void sendFileComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_sendFileComponentShown
+    private void btnSendComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_btnSendComponentShown
         // TODO add your handling code here:
-    }//GEN-LAST:event_sendFileComponentShown
+    }//GEN-LAST:event_btnSendComponentShown
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         setVisible(false);
         parent.setVisible(true);
     }//GEN-LAST:event_jButton1ActionPerformed
-
+    Server sender;
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        // TODO: Be implemented
-
+        try {
+            int port;
+            String p = hostPort.getText();
+            if (p.isEmpty()){
+                port = 0;
+            } else{
+                port = Integer.decode(p);
+            }
+            sender = new Server(txtLocation.getText(),port);
+            hostPort.setText(Integer.toString(sender.getPort()));
+            sender.waitForClients();
+            btnSend.setEnabled(true);
+        } catch (IOException ex) {
+            Logger.getLogger(SenderFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void hostIPActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hostIPActionPerformed
@@ -227,9 +255,19 @@ public class SenderFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_SelectFolderActionPerformed
 
+    private void btnSendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSendActionPerformed
+        try {
+            sender.stopWaiting();
+            sender.sentToAllClients();
+        } catch (IOException ex) {
+            Logger.getLogger(SenderFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btnSendActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton SelectFolder;
+    private javax.swing.JButton btnSend;
     private javax.swing.JTextField hostIP;
     private javax.swing.JTextField hostPort;
     private javax.swing.JButton jButton1;
@@ -239,7 +277,6 @@ public class SenderFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel lblStatus;
-    private javax.swing.JButton sendFile;
     private javax.swing.JTextField txtLocation;
     // End of variables declaration//GEN-END:variables
 }

@@ -33,19 +33,22 @@ public class Receiver {
         IP = ip;
     }
     Socket connect;
-    Path filepath;
 
     public void connect() throws IOException {
         connect = new Socket(IP, port);
-        BufferedReader inFromServer = new BufferedReader(new InputStreamReader(connect.getInputStream()));
-        filepath = Paths.get(directory, inFromServer.readLine());
     }
 
     public void receive(Reporter t) throws IOException {
-        Socket connect = new Socket(IP, port);
-        FileOutputStream fstream = new FileOutputStream(filepath.toString());
-        DataInputStream inFromServer = new DataInputStream(connect.getInputStream());
-        int len = inFromServer.readInt();
+        
+        DataInputStream inFromClient = new DataInputStream(connect.getInputStream());
+        int tmp = inFromClient.readInt();
+        byte[] file = new byte[tmp];
+        inFromClient.read(file);
+        
+        String filepath = Paths.get(directory,new String(file,"UTF-8")).toString();
+        FileOutputStream fstream = new FileOutputStream(filepath);
+        
+        int len = inFromClient.readInt();
 
         int interval = 5120;
 
@@ -58,11 +61,13 @@ public class Receiver {
             if (sz > interval) {
                 sz = interval;
             }
-            inFromServer.read(data, 0, sz);
+            inFromClient.read(data, 0, sz);
             fstream.write(data, 0, sz);
         }
-
+        
+        fstream.flush();
         fstream.close();
+        
         connect.close();
     }
 
