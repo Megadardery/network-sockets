@@ -11,6 +11,8 @@ package network.project.v1.pkg1;
  */
 import java.io.BufferedWriter;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.InetAddress;
@@ -49,10 +51,8 @@ public class Server {
     class fileSender implements Runnable {
 
         Socket client;
-        byte[] data;
 
-        public fileSender(Socket s, byte[] d) {
-            data = d;
+        public fileSender(Socket s) {
             client = s;
         }
 
@@ -64,24 +64,26 @@ public class Server {
 
                 String msg = Paths.get(fileName).getFileName().toString();
 
-                byte[] raw = msg.getBytes("UTF-8");
-                outToClient.writeInt(raw.length);
-                outToClient.write(raw);
+                outToClient.writeUTF(msg);
 
-                int len = data.length;
-                outToClient.writeInt(len);
+                long len = new File(fileName).length();
+                outToClient.writeLong(len);
+               
+                int interval = 10240;
+
+                byte[] data = new byte[interval];
+
+                FileInputStream fstream = new FileInputStream(fileName);
                 
-                int interval = 5120;
-                for (int off = 0; off < len; off += interval) {
-                    int sz = len - off;
+                for (long off = 0; off < len; off += interval) {
+                    long sz = len - off;
                     if (sz > interval) {
                         sz = interval;
                     }
-                    outToClient.write(data, off, sz);
-                    outToClient.flush();
+                    fstream.read(data, 0, (int)sz);
+                    outToClient.write(data, 0, (int)sz);
                 }
-                
-                //outToClient.write(data,0,len);
+                fstream.close();
                 System.out.println("File sent");
             } catch (SocketException e) {
                 e.printStackTrace();
@@ -129,12 +131,10 @@ public class Server {
         mainSocket.close();
     }
 
-    public void sentToAllClients() throws IOException {
-        byte[] data = Files.readAllBytes(Paths.get(fileName));
-
+    public void sentToAllClients() {
         ArrayList<Thread> threads = new ArrayList<Thread>();
         for (Socket s : clients) {
-            Thread t = new Thread(new fileSender(s, data));
+            Thread t = new Thread(new fileSender(s));
             t.start();
             threads.add(t);
         }

@@ -40,32 +40,31 @@ public class Receiver {
 
     public void receive(Reporter t) throws IOException {
         
-        DataInputStream inFromClient = new DataInputStream(connect.getInputStream());
-        int tmp = inFromClient.readInt();
-        byte[] file = new byte[tmp];
-        inFromClient.read(file);
+        DataInputStream inFromServer = new DataInputStream(connect.getInputStream());
+
+        String msg = inFromServer.readUTF();
         
-        String filepath = Paths.get(directory,new String(file,"UTF-8")).toString();
+        String filepath = Paths.get(directory, msg).toString();
         FileOutputStream fstream = new FileOutputStream(filepath);
         
-        int len = inFromClient.readInt();
+        long len = inFromServer.readLong();
 
-        int interval = 5120;
+        int interval = 10240;
 
         byte[] data = new byte[interval];
 
-        for (int off = 0; off < len; off += interval) {
-            t.report(off * 100 / len);
+        for (long off = 0; off < len; off += interval) {
+            t.report((int)(off * 100 / len));
 
-            int sz = len - off;
+            long sz = len - off;
             if (sz > interval) {
                 sz = interval;
             }
-            inFromClient.read(data, 0, sz);
-            fstream.write(data, 0, sz);
+            int read = inFromServer.read(data, 0, (int)sz);
+            off -= sz - read;
+            fstream.write(data, 0, read);
         }
-        
-        fstream.flush();
+        t.report(100);
         fstream.close();
         
         connect.close();
