@@ -7,7 +7,7 @@ public class Main {
 	static java.util.Scanner in = new java.util.Scanner(System.in);
 	static java.io.PrintStream out = System.out;
 	
-	public static void main(String[] args) {
+	public static void maina(String[] args) {
 		Peer client = new Peer();
 		out.println("Enter P2P port number: ");
 		int port = in.nextInt();
@@ -33,7 +33,10 @@ public class Main {
 			out.println("Do you want a specific file?");
 			int n = in.nextInt();
 			if (n == -1) break;
-			client.requestFile((int a)->{}, n, "D:\\test.txt");
+                        out.println("where do you want to install it? ");
+                        in.nextLine();
+                        String ss = in.nextLine();
+			client.requestFile((int a)->{}, n, ss);
 		}
 		client.close();
 	}
