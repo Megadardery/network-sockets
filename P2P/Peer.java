@@ -65,8 +65,11 @@ public class Peer {
 	public ArrayList<FileInfo> getAvailableFiles(){
 		return ExternalFileList;
 	}
+        public ArrayList<FileInfo> getLocalFiles(){
+		return LocalFileList;
+	}
 	public void addFilesToLocalList(String filenames) {
-		String[] files = filenames.split("|");
+		String[] files = filenames.split("\\|");
 
 
 		for (String file : files) {
