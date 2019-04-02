@@ -34,13 +34,20 @@ public class Peer {
 	private ServerSocket peerSrc;
 
 	private PeerInfo myPeer;
-	public void initialize(int port) throws IOException, InterruptedException {
+	public boolean initialize(int port) throws IOException, InterruptedException {
 	
 		PORT_NUMBER = port;
-		
+		try{
+                    peerListener = new ServerSocket(PORT_NUMBER);
+                }
+                catch(Exception ex){
+                    return false;
+                }
+                
+                
 		peerSrc = new ServerSocket(0);
 
-		peerListener = new ServerSocket(PORT_NUMBER);
+		
 
 		myPeer = new PeerInfo(InetAddress.getLocalHost(), peerSrc.getLocalPort());
 		
@@ -51,19 +58,19 @@ public class Peer {
 		
 		//Fills External File list
 		refreshFileList();
+                
+                return true;
 	}
 	
 	public ArrayList<FileInfo> getAvailableFiles(){
 		return ExternalFileList;
 	}
-	public void addFilesToLocalList(String directory) {
-		File tmp = new File(directory);
-		File[] files = tmp.listFiles();
-		if (files == null)
-			return;
+	public void addFilesToLocalList(String filenames) {
+		String[] files = filenames.split("|");
 
-		for (File file : files) {
-			FileInfo info = new FileInfo(myPeer, file.getAbsolutePath());
+
+		for (String file : files) {
+			FileInfo info = new FileInfo(myPeer, file);
 			LocalFileList.add(info);
 		}
 	}

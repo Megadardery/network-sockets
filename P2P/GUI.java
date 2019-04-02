@@ -7,8 +7,12 @@ package data_packages;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.io.File;
+import java.io.IOException;
 import javax.swing.BorderFactory;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
 /**
@@ -17,12 +21,43 @@ import javax.swing.UIManager;
  */
 public class GUI extends javax.swing.JFrame {
 
+    Peer myPeer;
+
     /**
      * Creates new form GUI
      */
     public GUI() {
         initComponents();
- 
+
+        try {
+
+            myPeer = new Peer();
+            int port;
+            while (true) {
+                String selected = JOptionPane.showInputDialog(this, "Input Peer to Peer port number:");
+
+                if (selected == null) {
+                    System.exit(0);
+                }
+
+                try {
+                    port = Integer.decode(selected);
+                    if (myPeer.initialize(port)) {
+                        break;
+                    }
+                } catch (NumberFormatException ex) {
+
+                }
+                if (JOptionPane.showConfirmDialog(this,
+                        "Unable to establish a connection with the given port. Retry?",
+                        "Error in connection", JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
+                    System.exit(0);
+                }
+
+            }
+        } catch (InterruptedException | IOException ex) {
+            ex.printStackTrace();
+        }
     }
 
     /**
@@ -41,7 +76,7 @@ public class GUI extends javax.swing.JFrame {
         jButton2 = new javax.swing.JButton();
         prgProgress = new javax.swing.JProgressBar();
         pnlLocal = new javax.swing.JPanel();
-        jTextField2 = new javax.swing.JTextField();
+        txtShare = new javax.swing.JTextField();
         jButton3 = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jButton4 = new javax.swing.JButton();
@@ -50,10 +85,15 @@ public class GUI extends javax.swing.JFrame {
         jTable2 = new javax.swing.JTable();
         jLabel2 = new javax.swing.JLabel();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("P2P");
         setLocationByPlatform(true);
         setResizable(false);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         pnlGlobal.setBorder(javax.swing.BorderFactory.createTitledBorder("Download Files"));
 
@@ -103,8 +143,8 @@ public class GUI extends javax.swing.JFrame {
 
         jButton2.setText("Refresh");
 
+        prgProgress.setForeground(new java.awt.Color(0, 204, 51));
         prgProgress.setValue(15);
-        prgProgress.setString("15%");
         prgProgress.setStringPainted(true);
 
         javax.swing.GroupLayout pnlGlobalLayout = new javax.swing.GroupLayout(pnlGlobal);
@@ -114,12 +154,11 @@ public class GUI extends javax.swing.JFrame {
             .addGroup(pnlGlobalLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(pnlGlobalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(pnlGlobalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 344, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGroup(pnlGlobalLayout.createSequentialGroup()
-                            .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                            .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 344, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(pnlGlobalLayout.createSequentialGroup()
+                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addComponent(prgProgress, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -138,9 +177,9 @@ public class GUI extends javax.swing.JFrame {
 
         pnlLocal.setBorder(javax.swing.BorderFactory.createTitledBorder("Share Files"));
 
-        jTextField2.addActionListener(new java.awt.event.ActionListener() {
+        txtShare.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField2ActionPerformed(evt);
+                txtShareActionPerformed(evt);
             }
         });
 
@@ -215,7 +254,7 @@ public class GUI extends javax.swing.JFrame {
                             .addGroup(pnlLocalLayout.createSequentialGroup()
                                 .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(txtShare, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
@@ -226,7 +265,7 @@ public class GUI extends javax.swing.JFrame {
             pnlLocalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlLocalLayout.createSequentialGroup()
                 .addGroup(pnlLocalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtShare, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton3)
                     .addComponent(jLabel1))
                 .addGap(3, 3, 3)
@@ -265,16 +304,30 @@ public class GUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        // TODO add your handling code here:
+        myPeer.addFilesToLocalList(txtShare.getText());
+        txtShare.setText("");
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        // TODO add your handling code here:
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("Choose files to share:");
+        chooser.setMultiSelectionEnabled(true);
+        if (chooser.showDialog(this, "Choose") == JFileChooser.APPROVE_OPTION) {
+            StringBuilder st = new StringBuilder();
+
+            for (File file : chooser.getSelectedFiles()) {
+                st.append(file.getAbsolutePath());
+                st.append("|");
+            }
+            st.deleteCharAt(st.length() - 1);
+            txtShare.setText(st.toString());
+        }
+
     }//GEN-LAST:event_jButton3ActionPerformed
 
-    private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField2ActionPerformed
+    private void txtShareActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtShareActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField2ActionPerformed
+    }//GEN-LAST:event_txtShareActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
@@ -283,6 +336,10 @@ public class GUI extends javax.swing.JFrame {
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton5ActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        myPeer.close();
+    }//GEN-LAST:event_formWindowClosing
 
     /**
      * @param args the command line arguments
@@ -295,21 +352,16 @@ public class GUI extends javax.swing.JFrame {
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
+                if ("Windows".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(GUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(GUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(GUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(GUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
+
 
         /*Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -331,9 +383,9 @@ public class GUI extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable jTable1;
     private javax.swing.JTable jTable2;
-    private javax.swing.JTextField jTextField2;
     private javax.swing.JPanel pnlGlobal;
     private javax.swing.JPanel pnlLocal;
     private javax.swing.JProgressBar prgProgress;
+    private javax.swing.JTextField txtShare;
     // End of variables declaration//GEN-END:variables
 }
