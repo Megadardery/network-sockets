@@ -19,6 +19,9 @@ import java.util.Arrays;
 
 public class Peer {
 
+    private static final int PINGTIME = 3000;
+    private static final int BUFFER_SIZE = 65536;
+
     //The port number used for internal communication
     private int PORT_NUMBER;
 
@@ -81,7 +84,7 @@ public class Peer {
         for (String file : files) {
             File f = new File(file);
             if (f.exists()) {
-                FileInfo info = new FileInfo(myPeer, file);
+                FileInfo info = new FileInfo(myPeer, file, f.length());
                 LocalFileList.add(info);
             }
         }
@@ -106,16 +109,14 @@ public class Peer {
                 return false;
             }
 
-            int interval = 10240;
+            byte[] data = new byte[BUFFER_SIZE];
 
-            byte[] data = new byte[interval];
-
-            for (long off = 0; off < len; off += interval) {
+            for (long off = 0; off < len; off += BUFFER_SIZE) {
                 t.report((int) (off * 100 / len));
 
                 long sz = len - off;
-                if (sz > interval) {
-                    sz = interval;
+                if (sz > BUFFER_SIZE) {
+                    sz = BUFFER_SIZE;
                 }
                 int read = inFromPeer.read(data, 0, (int) sz);
                 off -= sz - read;
@@ -125,6 +126,8 @@ public class Peer {
             fstream.close();
 
             connect.close();
+        } catch (SocketException e) {
+            return false;
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -171,26 +174,27 @@ public class Peer {
             String filename = inFromPeer.readUTF();
 
             boolean found = false;
-            for(FileInfo f : LocalFileList){
-                if (f.filename.equals(filename)) found = true;
+            for (FileInfo f : LocalFileList) {
+                if (f.filename.equals(filename)) {
+                    found = true;
+                }
             }
-            if (!found){
+            if (!found) {
                 outToPeer.writeLong(-1);
                 ss.close();
+                return;
             }
             long len = new File(filename).length();
             outToPeer.writeLong(len);
 
-            int interval = 10240;
-
-            byte[] data = new byte[interval];
+            byte[] data = new byte[BUFFER_SIZE];
 
             FileInputStream fstream = new FileInputStream(filename);
 
-            for (long off = 0; off < len; off += interval) {
+            for (long off = 0; off < len; off += BUFFER_SIZE) {
                 long sz = len - off;
-                if (sz > interval) {
-                    sz = interval;
+                if (sz > BUFFER_SIZE) {
+                    sz = BUFFER_SIZE;
                 }
                 fstream.read(data, 0, (int) sz);
                 outToPeer.write(data, 0, (int) sz);
@@ -198,7 +202,7 @@ public class Peer {
             fstream.close();
             ss.close();
         } catch (SocketException ex) {
-            ex.printStackTrace();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -214,38 +218,10 @@ public class Peer {
         }
         ArrayList<Thread> threads = new ArrayList<>();
         for (int i = 2; i <= 254; i++) {
-            final int j = i;
 
-            @SuppressWarnings("unchecked")
+            ip[3] = (byte) i;
             Thread e = new Thread(() -> {
-                try {
-                    ip[3] = (byte) j;
-                    InetAddress address = InetAddress.getByAddress(ip);
-
-                    if (address.equals(InetAddress.getLocalHost())) {
-                        return;
-                    }
-
-                    ArrayList<FileInfo> tempFileList;
-
-                    Socket ss = new Socket();
-                    ss.setReuseAddress(true);
-
-                    ss.connect(new java.net.InetSocketAddress(address, PORT_NUMBER), 3000);
-                    ObjectInputStream obj = new ObjectInputStream(ss.getInputStream());
-                    tempFileList = (ArrayList<FileInfo>) obj.readObject();
-                    ss.close();
-
-                    for (FileInfo fileInfo : tempFileList) {
-                        ExternalFileList.add(fileInfo);
-                    }
-                } catch (ConnectException ex) {
-
-                } catch (SocketTimeoutException ex) {
-
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
+                FetchUserList(ip);
             });
 
             e.start();
@@ -261,4 +237,35 @@ public class Peer {
             }
         }
     }
+
+    @SuppressWarnings("unchecked")
+    private void FetchUserList(final byte[] ip) {
+        try {
+
+            InetAddress address = InetAddress.getByAddress(ip);
+
+            if (address.equals(InetAddress.getLocalHost())) {
+                return;
+            }
+
+            ArrayList<FileInfo> tempFileList;
+
+            Socket ss = new Socket();
+            ss.setReuseAddress(true);
+
+            ss.connect(new java.net.InetSocketAddress(address, PORT_NUMBER), PINGTIME);
+            ObjectInputStream obj = new ObjectInputStream(ss.getInputStream());
+            tempFileList = (ArrayList<FileInfo>) obj.readObject();
+            ss.close();
+
+            for (FileInfo fileInfo : tempFileList) {
+                ExternalFileList.add(fileInfo);
+            }
+        } catch (ConnectException | SocketTimeoutException ex) {
+
+        } catch (IOException | ClassNotFoundException ex) {
+            ex.printStackTrace();
+        }
+    }
+
 }

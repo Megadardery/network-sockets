@@ -7,11 +7,9 @@ package data_packages;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -34,7 +32,7 @@ public final class GUI extends javax.swing.JFrame {
 
     public void atStart() {
         try {
-
+            prgProgress.setVisible(false);
             //myPeer = new Peer();
             int port;
             while (true) {
@@ -46,7 +44,7 @@ public final class GUI extends javax.swing.JFrame {
 
                 try {
                     port = Integer.decode(selected);
-                    if (myPeer.initialize(port)) {
+                    if (port > 0 && myPeer.initialize(port)) {
                         break;
                     }
                 } catch (NumberFormatException ex) {
@@ -59,6 +57,7 @@ public final class GUI extends javax.swing.JFrame {
                 }
 
             }
+            //new RefreshWorker().execute();
         } catch (InterruptedException | IOException ex) {
             ex.printStackTrace();
         }
@@ -82,7 +81,6 @@ public final class GUI extends javax.swing.JFrame {
         pnlLocal = new javax.swing.JPanel();
         txtShare = new javax.swing.JTextField();
         btnBrowse = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
         btnShare = new javax.swing.JButton();
         btnUnshare = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -107,14 +105,14 @@ public final class GUI extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Filename", "IPAddress"
+                "Filename", "Size", "IPAddress"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.Object.class
+                java.lang.String.class, java.lang.Object.class, java.lang.Object.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false
+                false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -125,12 +123,13 @@ public final class GUI extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        tblDownload.setColumnSelectionAllowed(true);
         tblDownload.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jScrollPane1.setViewportView(tblDownload);
         tblDownload.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         if (tblDownload.getColumnModel().getColumnCount() > 0) {
-            tblDownload.getColumnModel().getColumn(0).setResizable(false);
             tblDownload.getColumnModel().getColumn(1).setResizable(false);
+            tblDownload.getColumnModel().getColumn(2).setResizable(false);
         }
         tblDownload.getAccessibleContext().setAccessibleName("");
 
@@ -158,12 +157,14 @@ public final class GUI extends javax.swing.JFrame {
             .addGroup(pnlGlobalLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(pnlGlobalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 344, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(prgProgress, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(pnlGlobalLayout.createSequentialGroup()
-                        .addComponent(btnDownload, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnRefresh, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(prgProgress, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 344, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(pnlGlobalLayout.createSequentialGroup()
+                        .addComponent(btnDownload, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnRefresh, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         pnlGlobalLayout.setVerticalGroup(
@@ -172,11 +173,10 @@ public final class GUI extends javax.swing.JFrame {
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(pnlGlobalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnDownload)
-                    .addComponent(btnRefresh))
+                    .addComponent(btnRefresh)
+                    .addComponent(btnDownload))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(prgProgress, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addComponent(prgProgress, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         pnlLocal.setBorder(javax.swing.BorderFactory.createTitledBorder("Share Files"));
@@ -187,15 +187,13 @@ public final class GUI extends javax.swing.JFrame {
             }
         });
 
-        btnBrowse.setFont(new java.awt.Font("Dialog", 1, 8)); // NOI18N
+        btnBrowse.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
         btnBrowse.setText("Browse");
         btnBrowse.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnBrowseActionPerformed(evt);
             }
         });
-
-        jLabel1.setText(" Files :");
 
         btnShare.setText("Share");
         btnShare.addActionListener(new java.awt.event.ActionListener() {
@@ -216,14 +214,14 @@ public final class GUI extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Filename"
+                "Filename", "Size"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class
+                java.lang.String.class, java.lang.Object.class
             };
             boolean[] canEdit = new boolean [] {
-                false
+                false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -234,11 +232,9 @@ public final class GUI extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        tblLocal.setColumnSelectionAllowed(true);
         jScrollPane2.setViewportView(tblLocal);
         tblLocal.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        if (tblLocal.getColumnModel().getColumnCount() > 0) {
-            tblLocal.getColumnModel().getColumn(0).setResizable(false);
-        }
 
         jLabel2.setText("Shared Files");
 
@@ -252,16 +248,14 @@ public final class GUI extends javax.swing.JFrame {
                     .addGroup(pnlLocalLayout.createSequentialGroup()
                         .addGap(71, 71, 71)
                         .addComponent(jLabel2)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addContainerGap(95, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlLocalLayout.createSequentialGroup()
                         .addGroup(pnlLocalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(btnUnshare, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(pnlLocalLayout.createSequentialGroup()
-                                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(txtShare)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(txtShare, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btnBrowse, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(btnBrowse))
                             .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                             .addComponent(btnShare, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addContainerGap())))
@@ -271,17 +265,15 @@ public final class GUI extends javax.swing.JFrame {
             .addGroup(pnlLocalLayout.createSequentialGroup()
                 .addGroup(pnlLocalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtShare, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnBrowse)
-                    .addComponent(jLabel1))
+                    .addComponent(btnBrowse))
                 .addGap(3, 3, 3)
                 .addComponent(btnShare)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 348, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 359, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnUnshare, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addComponent(btnUnshare, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -316,27 +308,9 @@ public final class GUI extends javax.swing.JFrame {
 
         myPeer.addFilesToLocalList(txtShare.getText());
         txtShare.setText("");
-        RefreshLocal();
+        Helper.RefreshLocal();
 
     }//GEN-LAST:event_btnShareActionPerformed
-
-    private void RefreshLocal() {
-        String[] cols = {"Filename"};
-        DefaultTableModel tableModelL = new DefaultTableModel(cols, 0) {
-            @Override
-            public boolean isCellEditable(int r, int c) {
-                return false;
-            }
-        };
-        ArrayList<FileInfo> dispL = myPeer.getLocalFiles();
-        for (int i = 0; i < dispL.size(); ++i) {
-            File fname = new File(dispL.get(i).filename);
-            Object[] obj = {fname.getName()};
-
-            tableModelL.addRow(obj);
-        }
-        tblLocal.setModel(tableModelL);
-    }
 
     private void btnBrowseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBrowseActionPerformed
         JFileChooser chooser = new JFileChooser();
@@ -399,7 +373,7 @@ public final class GUI extends javax.swing.JFrame {
     private void btnUnshareActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUnshareActionPerformed
         int slc[] = tblLocal.getSelectedRows();
         myPeer.removeFromLocalList(slc);
-        RefreshLocal();
+        Helper.RefreshLocal();
     }//GEN-LAST:event_btnUnshareActionPerformed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
@@ -409,7 +383,6 @@ public final class GUI extends javax.swing.JFrame {
     private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
 
         new RefreshWorker().execute();
-
     }//GEN-LAST:event_btnRefreshActionPerformed
 
     /**
@@ -447,7 +420,6 @@ public final class GUI extends javax.swing.JFrame {
     protected javax.swing.JButton btnRefresh;
     protected javax.swing.JButton btnShare;
     protected javax.swing.JButton btnUnshare;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;

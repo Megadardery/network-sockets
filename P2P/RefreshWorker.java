@@ -7,9 +7,6 @@ package data_packages;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
-import javax.swing.JProgressBar;
-import javax.swing.JTable;
 import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 
@@ -31,7 +28,7 @@ public class RefreshWorker extends SwingWorker {
         return null;
     }
 
-    String coln[] = {"Filename", "IP Address"};
+    String coln[] = {"Filename", "Size", "IP Address"};
 
     @Override
     protected void done() {
@@ -43,8 +40,9 @@ public class RefreshWorker extends SwingWorker {
         };
         ArrayList<FileInfo> disp = GUI.myGUI.myPeer.getAvailableFiles();
         for (int i = 0; i < disp.size(); ++i) {
-            File fname = new File(disp.get(i).filename);
-            Object[] obj = {fname.getName(), disp.get(i).owner.address.getHostAddress()};
+            FileInfo curr = disp.get(i);
+            File fname = new File(curr.filename);
+            Object[] obj = {fname.getName(), Helper.getSizeInText(curr.size), curr.owner.address.getHostAddress()};
             tableModelN.addRow(obj);
         }
 
