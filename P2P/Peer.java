@@ -15,222 +15,250 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Peer {
 
-	//The port number used for internal communication
-	private int PORT_NUMBER;
+    //The port number used for internal communication
+    private int PORT_NUMBER;
 
-	//holds list of files that are in the network and not in current peer
-	private volatile ArrayList<FileInfo> ExternalFileList = new ArrayList<>();
-	
-	//holds list of files shared by current peer
-	private ArrayList<FileInfo> LocalFileList = new ArrayList<>();
+    //holds list of files that are in the network and not in current peer
+    private volatile ArrayList<FileInfo> ExternalFileList = new ArrayList<>();
 
-	// Used for new peers to get list of files.
-	private ServerSocket peerListener;
+    //holds list of files shared by current peer
+    private ArrayList<FileInfo> LocalFileList = new ArrayList<>();
 
-	// Used so that peers can reach this peer to receive files
-	private ServerSocket peerSrc;
+    // Used for new peers to get list of files.
+    private ServerSocket peerListener;
 
-	private PeerInfo myPeer;
-	public boolean initialize(int port) throws IOException, InterruptedException {
-	
-		PORT_NUMBER = port;
-		try{
-                    peerListener = new ServerSocket(PORT_NUMBER);
+    // Used so that peers can reach this peer to receive files
+    private ServerSocket peerSrc;
+
+    private PeerInfo myPeer;
+
+    public boolean initialize(int port) throws IOException, InterruptedException {
+
+        PORT_NUMBER = port;
+        try {
+            peerListener = new ServerSocket(PORT_NUMBER);
+        } catch (Exception ex) {
+            return false;
+        }
+
+        peerSrc = new ServerSocket(0);
+
+        myPeer = new PeerInfo(InetAddress.getLocalHost(), peerSrc.getLocalPort());
+
+        //launches the listener, which informs new peers of its own file list
+        new Thread(this::_peerListener).start();
+
+        new Thread(this::_requestAccepter).start();
+
+        //Fills External File list
+        refreshFileList();
+
+        return true;
+    }
+
+    public ArrayList<FileInfo> getAvailableFiles() {
+        return ExternalFileList;
+    }
+
+    public ArrayList<FileInfo> getLocalFiles() {
+        return LocalFileList;
+    }
+
+    public void removeFromLocalList(int idx[]) {
+        Arrays.sort(idx);
+        for (int i = idx.length - 1; i >= 0; --i) {
+            LocalFileList.remove(idx[i]);
+        }
+    }
+
+    public void addFilesToLocalList(String filenames) {
+        String[] files = filenames.split("\\|");
+
+        for (String file : files) {
+            File f = new File(file);
+            if (f.exists()) {
+                FileInfo info = new FileInfo(myPeer, file);
+                LocalFileList.add(info);
+            }
+        }
+    }
+
+    public boolean requestFile(Reporter t, int idx, String filepath) {
+        try {
+            FileInfo fileInfo = ExternalFileList.get(idx);
+            Socket connect = new Socket(fileInfo.owner.address, fileInfo.owner.port);
+            FileOutputStream fstream = new FileOutputStream(filepath);
+
+            DataOutputStream outToPeer = new DataOutputStream(connect.getOutputStream());
+            outToPeer.writeUTF(fileInfo.filename);
+
+            DataInputStream inFromPeer = new DataInputStream(connect.getInputStream());
+
+            long len = inFromPeer.readLong();
+
+            if (len == -1) {
+                fstream.close();
+                connect.close();
+                return false;
+            }
+
+            int interval = 10240;
+
+            byte[] data = new byte[interval];
+
+            for (long off = 0; off < len; off += interval) {
+                t.report((int) (off * 100 / len));
+
+                long sz = len - off;
+                if (sz > interval) {
+                    sz = interval;
                 }
-                catch(Exception ex){
-                    return false;
-                }
-                
-                
-		peerSrc = new ServerSocket(0);
+                int read = inFromPeer.read(data, 0, (int) sz);
+                off -= sz - read;
+                fstream.write(data, 0, read);
+            }
+            t.report(100);
+            fstream.close();
 
-		
+            connect.close();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return true;
+    }
 
-		myPeer = new PeerInfo(InetAddress.getLocalHost(), peerSrc.getLocalPort());
-		
-		//launches the listener, which informs new peers of its own file list
-		new Thread(this::_peerListener).start();
-		
-		new Thread(this::_requestAccepter).start();
-		
-		//Fills External File list
-		refreshFileList();
-                
-                return true;
-	}
-	
-	public ArrayList<FileInfo> getAvailableFiles(){
-		return ExternalFileList;
-	}
-        public ArrayList<FileInfo> getLocalFiles(){
-		return LocalFileList;
-	}
-	public void addFilesToLocalList(String filenames) {
-		String[] files = filenames.split("\\|");
-
-
-		for (String file : files) {
-			FileInfo info = new FileInfo(myPeer, file);
-			LocalFileList.add(info);
-		}
-	}
-	
-	
-	public void requestFile(Reporter t, int idx, String filepath){
-		try {
-			FileInfo fileInfo = ExternalFileList.get(idx);
-			Socket connect = new Socket(fileInfo.owner.address,fileInfo.owner.port);
-			FileOutputStream fstream = new FileOutputStream(filepath);
-			
-			DataOutputStream outToPeer = new DataOutputStream(connect.getOutputStream());
-			outToPeer.writeUTF(fileInfo.filename);
-			
-			DataInputStream inFromPeer = new DataInputStream(connect.getInputStream());
-			
-	        long len = inFromPeer.readLong();
-
-	        int interval = 10240;
-
-	        byte[] data = new byte[interval];
-
-	        for (long off = 0; off < len; off += interval) {
-	            t.report((int)(off * 100 / len));
-
-	            long sz = len - off;
-	            if (sz > interval) {
-	                sz = interval;
-	            }
-	            int read = inFromPeer.read(data, 0, (int)sz);
-	            off -= sz - read;
-	            fstream.write(data, 0, read);
-	        }
-	        t.report(100);
-	        fstream.close();
-	        
-	        connect.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	public interface Reporter {
+    public interface Reporter {
 
         void report(int param1);
     }
-	
-	public void close(){
-		try {
-			peerSrc.close();
-			peerListener.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	private void _peerListener() {
-		try {
-			Socket ss = peerListener.accept();
-			new Thread(this::_peerListener).start();
-			ObjectOutputStream obj = new ObjectOutputStream(ss.getOutputStream());
-			obj.writeObject(LocalFileList);
-		} catch(SocketException ex){
-			
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
 
-	private void _requestAccepter() {
-		try {
-			Socket ss = peerSrc.accept();
-			new Thread(this::_requestAccepter).start();
+    public void close() {
+        try {
+            peerSrc.close();
+            peerListener.close();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 
-			DataInputStream inFromPeer = new DataInputStream(ss.getInputStream());
-			DataOutputStream outToPeer = new DataOutputStream(ss.getOutputStream());
-			
-			String filename = inFromPeer.readUTF();
+    private void _peerListener() {
+        try {
+            Socket ss = peerListener.accept();
+            new Thread(this::_peerListener).start();
+            ObjectOutputStream obj = new ObjectOutputStream(ss.getOutputStream());
+            obj.writeObject(LocalFileList);
+        } catch (SocketException ex) {
 
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void _requestAccepter() {
+        try {
+            Socket ss = peerSrc.accept();
+            new Thread(this::_requestAccepter).start();
+
+            DataInputStream inFromPeer = new DataInputStream(ss.getInputStream());
+            DataOutputStream outToPeer = new DataOutputStream(ss.getOutputStream());
+
+            String filename = inFromPeer.readUTF();
+
+            boolean found = false;
+            for(FileInfo f : LocalFileList){
+                if (f.filename.equals(filename)) found = true;
+            }
+            if (!found){
+                outToPeer.writeLong(-1);
+                ss.close();
+            }
             long len = new File(filename).length();
             outToPeer.writeLong(len);
-           
+
             int interval = 10240;
 
             byte[] data = new byte[interval];
 
             FileInputStream fstream = new FileInputStream(filename);
-            
+
             for (long off = 0; off < len; off += interval) {
                 long sz = len - off;
                 if (sz > interval) {
                     sz = interval;
                 }
-                fstream.read(data, 0, (int)sz);
-                outToPeer.write(data, 0, (int)sz);
+                fstream.read(data, 0, (int) sz);
+                outToPeer.write(data, 0, (int) sz);
             }
             fstream.close();
             ss.close();
-		} catch(SocketException ex){
-			
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	public void refreshFileList() throws InterruptedException {
-		ExternalFileList.clear();
-		final byte[] ip;
-		try {
-			ip = InetAddress.getLocalHost().getAddress();
-		} catch (Exception e) {
-			return;
-		}
-		ArrayList<Thread> threads = new ArrayList<>();
-		for (int i = 2; i <= 254; i++) {
-			final int j = i;
-			
-			@SuppressWarnings("unchecked")
-			Thread e = new Thread(() -> {
-				try {
-					ip[3] = (byte) j;
-					InetAddress address = InetAddress.getByAddress(ip);
-					
-					if (address.equals(InetAddress.getLocalHost()))
-						return;
-					
-					ArrayList<FileInfo> tempFileList;
-					
-					Socket ss= new Socket();
-					ss.setReuseAddress(true);
-					
-					ss.connect(new java.net.InetSocketAddress(address,PORT_NUMBER),3000);					
-					ObjectInputStream obj = new ObjectInputStream(ss.getInputStream());
-					tempFileList = (ArrayList<FileInfo>)obj.readObject();
-					ss.close();
-					
-					for(FileInfo fileInfo : tempFileList){
-						ExternalFileList.add(fileInfo);
-					}
-				} catch (ConnectException ex){
-					
-				} catch (SocketTimeoutException ex){
-					
-				} catch (Exception ex) {
-					ex.printStackTrace();
-				}
-			});
-			
-			e.start();
-			
-			threads.add(e);
+        } catch (SocketException ex) {
+            ex.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-			
-		}
-		for (Thread thread : threads) {
-			thread.join();
-		}
-	}
+    public void refreshFileList() {
+        ExternalFileList.clear();
+        final byte[] ip;
+        try {
+            ip = InetAddress.getLocalHost().getAddress();
+        } catch (Exception e) {
+            return;
+        }
+        ArrayList<Thread> threads = new ArrayList<>();
+        for (int i = 2; i <= 254; i++) {
+            final int j = i;
+
+            @SuppressWarnings("unchecked")
+            Thread e = new Thread(() -> {
+                try {
+                    ip[3] = (byte) j;
+                    InetAddress address = InetAddress.getByAddress(ip);
+
+                    if (address.equals(InetAddress.getLocalHost())) {
+                        return;
+                    }
+
+                    ArrayList<FileInfo> tempFileList;
+
+                    Socket ss = new Socket();
+                    ss.setReuseAddress(true);
+
+                    ss.connect(new java.net.InetSocketAddress(address, PORT_NUMBER), 3000);
+                    ObjectInputStream obj = new ObjectInputStream(ss.getInputStream());
+                    tempFileList = (ArrayList<FileInfo>) obj.readObject();
+                    ss.close();
+
+                    for (FileInfo fileInfo : tempFileList) {
+                        ExternalFileList.add(fileInfo);
+                    }
+                } catch (ConnectException ex) {
+
+                } catch (SocketTimeoutException ex) {
+
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            });
+
+            e.start();
+
+            threads.add(e);
+
+        }
+        for (Thread thread : threads) {
+            try {
+                thread.join();
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
 }

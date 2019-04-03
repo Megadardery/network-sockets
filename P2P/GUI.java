@@ -5,26 +5,21 @@
  */
 package data_packages;
 
-import java.awt.Color;
-import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.BorderFactory;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.UIManager;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
 /**
  *
  * @author belal
  */
-public class GUI extends javax.swing.JFrame {
+public final class GUI extends javax.swing.JFrame {
+
+    public static GUI myGUI;
 
     Peer myPeer = new Peer();
 
@@ -34,6 +29,10 @@ public class GUI extends javax.swing.JFrame {
     public GUI() {
         initComponents();
 
+        atStart();
+    }
+
+    public void atStart() {
         try {
 
             //myPeer = new Peer();
@@ -64,7 +63,6 @@ public class GUI extends javax.swing.JFrame {
             ex.printStackTrace();
         }
     }
-    String coln[] = {"filename", "IP Address"};
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -78,7 +76,7 @@ public class GUI extends javax.swing.JFrame {
         pnlGlobal = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblDownload = new javax.swing.JTable();
-        jButton1 = new javax.swing.JButton();
+        btnDownload = new javax.swing.JButton();
         btnRefresh = new javax.swing.JButton();
         prgProgress = new javax.swing.JProgressBar();
         pnlLocal = new javax.swing.JPanel();
@@ -86,7 +84,7 @@ public class GUI extends javax.swing.JFrame {
         btnBrowse = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         btnShare = new javax.swing.JButton();
-        jButton5 = new javax.swing.JButton();
+        btnUnshare = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         tblLocal = new javax.swing.JTable();
         jLabel2 = new javax.swing.JLabel();
@@ -104,38 +102,46 @@ public class GUI extends javax.swing.JFrame {
         pnlGlobal.setBorder(javax.swing.BorderFactory.createTitledBorder("Download Files"));
 
         tblDownload.setAutoCreateRowSorter(true);
-        tblDownload.setColumnSelectionAllowed(true);
+        tblDownload.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Filename", "IPAddress"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.Object.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         tblDownload.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jScrollPane1.setViewportView(tblDownload);
         tblDownload.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        if (tblDownload.getColumnModel().getColumnCount() > 0) {
+            tblDownload.getColumnModel().getColumn(0).setResizable(false);
+            tblDownload.getColumnModel().getColumn(1).setResizable(false);
+        }
         tblDownload.getAccessibleContext().setAccessibleName("");
 
-        jButton1.setText("Download");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        btnDownload.setText("Download");
+        btnDownload.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                btnDownloadActionPerformed(evt);
             }
         });
 
         btnRefresh.setText("Refresh");
-        try
-        {
-            myPeer.refreshFileList();
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
-
-        DefaultTableModel tableModelN = new DefaultTableModel(coln,0);
-        ArrayList<FileInfo> disp = myPeer.getAvailableFiles();
-        for (int i = 0 ; i<disp.size();++i)
-        {
-            File fname = new File (disp.get(i).filename);
-            Object[] obj = {fname.getName(),disp.get(i).owner};
-            tableModelN.addRow(obj);
-        }
-        tblDownload.setModel(tableModelN);
         btnRefresh.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnRefreshActionPerformed(evt);
@@ -143,7 +149,6 @@ public class GUI extends javax.swing.JFrame {
         });
 
         prgProgress.setForeground(new java.awt.Color(0, 204, 51));
-        prgProgress.setValue(15);
         prgProgress.setStringPainted(true);
 
         javax.swing.GroupLayout pnlGlobalLayout = new javax.swing.GroupLayout(pnlGlobal);
@@ -155,7 +160,7 @@ public class GUI extends javax.swing.JFrame {
                 .addGroup(pnlGlobalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 344, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(pnlGlobalLayout.createSequentialGroup()
-                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnDownload, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(btnRefresh, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addComponent(prgProgress, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -167,7 +172,7 @@ public class GUI extends javax.swing.JFrame {
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(pnlGlobalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
+                    .addComponent(btnDownload)
                     .addComponent(btnRefresh))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(prgProgress, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -199,14 +204,21 @@ public class GUI extends javax.swing.JFrame {
             }
         });
 
-        jButton5.setText("Unshare Selected");
-        jButton5.addActionListener(new java.awt.event.ActionListener() {
+        btnUnshare.setText("Unshare Selected");
+        btnUnshare.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton5ActionPerformed(evt);
+                btnUnshareActionPerformed(evt);
             }
         });
 
-        tblLocal.setModel(new javax.swing.table.DefaultTableModel() {
+        tblLocal.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Filename"
+            }
+        ) {
             Class[] types = new Class [] {
                 java.lang.String.class
             };
@@ -224,6 +236,9 @@ public class GUI extends javax.swing.JFrame {
         });
         jScrollPane2.setViewportView(tblLocal);
         tblLocal.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        if (tblLocal.getColumnModel().getColumnCount() > 0) {
+            tblLocal.getColumnModel().getColumn(0).setResizable(false);
+        }
 
         jLabel2.setText("Shared Files");
 
@@ -240,7 +255,7 @@ public class GUI extends javax.swing.JFrame {
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlLocalLayout.createSequentialGroup()
                         .addGroup(pnlLocalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jButton5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnUnshare, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(pnlLocalLayout.createSequentialGroup()
                                 .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -265,7 +280,7 @@ public class GUI extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 348, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(btnUnshare, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
@@ -293,20 +308,35 @@ public class GUI extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+
     private void btnShareActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnShareActionPerformed
-        if (txtShare.getText() == "") return;
+        if (txtShare.getText().isEmpty()) {
+            return;
+        }
+
         myPeer.addFilesToLocalList(txtShare.getText());
         txtShare.setText("");
+        RefreshLocal();
+
+    }//GEN-LAST:event_btnShareActionPerformed
+
+    private void RefreshLocal() {
         String[] cols = {"Filename"};
-        DefaultTableModel tableModelL = new DefaultTableModel(cols, 0);
+        DefaultTableModel tableModelL = new DefaultTableModel(cols, 0) {
+            @Override
+            public boolean isCellEditable(int r, int c) {
+                return false;
+            }
+        };
         ArrayList<FileInfo> dispL = myPeer.getLocalFiles();
         for (int i = 0; i < dispL.size(); ++i) {
             File fname = new File(dispL.get(i).filename);
             Object[] obj = {fname.getName()};
+
             tableModelL.addRow(obj);
         }
         tblLocal.setModel(tableModelL);
-    }//GEN-LAST:event_btnShareActionPerformed
+    }
 
     private void btnBrowseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBrowseActionPerformed
         JFileChooser chooser = new JFileChooser();
@@ -322,7 +352,7 @@ public class GUI extends javax.swing.JFrame {
             st.deleteCharAt(st.length() - 1);
             txtShare.setText(st.toString());
         }
-        
+
 
     }//GEN-LAST:event_btnBrowseActionPerformed
 
@@ -330,33 +360,55 @@ public class GUI extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtShareActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton1ActionPerformed
+    private String getExtension(String fileName) {
+        String extension = "";
 
-    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton5ActionPerformed
+        int i = fileName.lastIndexOf('.');
+        int p = Math.max(fileName.lastIndexOf('/'), fileName.lastIndexOf('\\'));
+
+        if (i > p) {
+            extension = fileName.substring(i + 1);
+        }
+
+        return extension;
+    }
+    private void btnDownloadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDownloadActionPerformed
+        int idx = tblDownload.getSelectedRow();
+        if (idx == -1) {
+            return;
+        }
+
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogType(JFileChooser.SAVE_DIALOG);
+        chooser.setDialogTitle("Choose where you want to save the file: ");
+
+        String path = myPeer.getAvailableFiles().get(idx).filename;
+        String ext = getExtension(path);
+        if (!ext.isEmpty()) {
+            chooser.setFileFilter(new FileNameExtensionFilter(ext.toUpperCase() + " file", ext));
+            ext = "." + ext;
+        }
+
+        if (chooser.showDialog(this, null) == JFileChooser.APPROVE_OPTION) {
+            new DownloadWorker(idx, chooser.getSelectedFile().getAbsolutePath() + ext).execute();
+        }
+
+
+    }//GEN-LAST:event_btnDownloadActionPerformed
+
+    private void btnUnshareActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUnshareActionPerformed
+        int slc[] = tblLocal.getSelectedRows();
+        myPeer.removeFromLocalList(slc);
+        RefreshLocal();
+    }//GEN-LAST:event_btnUnshareActionPerformed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         myPeer.close();
     }//GEN-LAST:event_formWindowClosing
 
     private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
-        
-        
-        try {
-            myPeer.refreshFileList();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        DefaultTableModel tableModelN = new DefaultTableModel(coln, 0);
-        ArrayList<FileInfo> disp = myPeer.getAvailableFiles();
-        for (int i = 0; i < disp.size(); ++i) {
-            Object[] obj = {disp.get(i).filename, disp.get(i).owner};
-            tableModelN.addRow(obj);
-        }
-        tblDownload.setModel(tableModelN);
+
+        new RefreshWorker().execute();
 
     }//GEN-LAST:event_btnRefreshActionPerformed
 
@@ -383,28 +435,27 @@ public class GUI extends javax.swing.JFrame {
 
 
         /*Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new GUI().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            myGUI = new GUI();
+            myGUI.setVisible(true);
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnBrowse;
-    private javax.swing.JButton btnRefresh;
-    private javax.swing.JButton btnShare;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton5;
+    protected javax.swing.JButton btnBrowse;
+    protected javax.swing.JButton btnDownload;
+    protected javax.swing.JButton btnRefresh;
+    protected javax.swing.JButton btnShare;
+    protected javax.swing.JButton btnUnshare;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JPanel pnlGlobal;
     private javax.swing.JPanel pnlLocal;
-    private javax.swing.JProgressBar prgProgress;
-    private javax.swing.JTable tblDownload;
-    private javax.swing.JTable tblLocal;
-    private javax.swing.JTextField txtShare;
+    protected javax.swing.JProgressBar prgProgress;
+    protected javax.swing.JTable tblDownload;
+    protected javax.swing.JTable tblLocal;
+    protected javax.swing.JTextField txtShare;
     // End of variables declaration//GEN-END:variables
 }
