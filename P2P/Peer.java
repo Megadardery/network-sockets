@@ -30,6 +30,7 @@ public class Peer {
 
     //holds list of files shared by current peer
     private ArrayList<FileInfo> LocalFileList = new ArrayList<>();
+    private ArrayList<String[]> LocalFileListPeers = new ArrayList<>();
 
     // Used for new peers to get list of files.
     private ServerSocket peerListener;
@@ -78,7 +79,7 @@ public class Peer {
         }
     }
 
-    public void addFilesToLocalList(String filenames) {
+    public void addFilesToLocalList(String filenames, String[] onlythese) {
         String[] files = filenames.split("\\|");
 
         for (String file : files) {
@@ -86,6 +87,7 @@ public class Peer {
             if (f.exists()) {
                 FileInfo info = new FileInfo(myPeer, file, f.length());
                 LocalFileList.add(info);
+                LocalFileListPeers.add(onlythese);
             }
         }
     }
@@ -154,8 +156,25 @@ public class Peer {
         try {
             Socket ss = peerListener.accept();
             new Thread(this::_peerListener).start();
+            ArrayList<FileInfo> LocalFileListCpy = (ArrayList<FileInfo>) LocalFileList.clone();
+            for (int i = 0; i < LocalFileListPeers.size(); ++i) {
+                String[] curr = LocalFileListPeers.get(i);
+                if (curr != null) {
+                    boolean flag = false;
+                    for (String x : curr) {
+                        if (ss.getInetAddress().getHostAddress().equals(x)) {
+                            flag = true;
+                            break;
+                        }
+                    }
+                    if (flag == false) {
+                        LocalFileListCpy.remove(i);
+                    }
+                }
+
+            }
             ObjectOutputStream obj = new ObjectOutputStream(ss.getOutputStream());
-            obj.writeObject(LocalFileList);
+            obj.writeObject(LocalFileListCpy);
         } catch (SocketException ex) {
 
         } catch (IOException e) {

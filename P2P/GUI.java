@@ -18,7 +18,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 public final class GUI extends javax.swing.JFrame {
 
     public static GUI myGUI;
-
+    public static int buttonSelected;
     Peer myPeer = new Peer();
 
     /**
@@ -86,6 +86,7 @@ public final class GUI extends javax.swing.JFrame {
         jScrollPane2 = new javax.swing.JScrollPane();
         tblLocal = new javax.swing.JTable();
         jLabel2 = new javax.swing.JLabel();
+        chkSpecific = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("P2P");
@@ -238,6 +239,8 @@ public final class GUI extends javax.swing.JFrame {
 
         jLabel2.setText("Shared Files");
 
+        chkSpecific.setText("to specific");
+
         javax.swing.GroupLayout pnlLocalLayout = new javax.swing.GroupLayout(pnlLocal);
         pnlLocal.setLayout(pnlLocalLayout);
         pnlLocalLayout.setHorizontalGroup(
@@ -252,12 +255,15 @@ public final class GUI extends javax.swing.JFrame {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlLocalLayout.createSequentialGroup()
                         .addGroup(pnlLocalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(btnUnshare, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                             .addGroup(pnlLocalLayout.createSequentialGroup()
                                 .addComponent(txtShare)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(btnBrowse))
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                            .addComponent(btnShare, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, pnlLocalLayout.createSequentialGroup()
+                                .addComponent(btnShare, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(chkSpecific, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addContainerGap())))
         );
         pnlLocalLayout.setVerticalGroup(
@@ -267,7 +273,9 @@ public final class GUI extends javax.swing.JFrame {
                     .addComponent(txtShare, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnBrowse))
                 .addGap(3, 3, 3)
-                .addComponent(btnShare)
+                .addGroup(pnlLocalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnShare)
+                    .addComponent(chkSpecific))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -305,8 +313,15 @@ public final class GUI extends javax.swing.JFrame {
         if (txtShare.getText().isEmpty()) {
             return;
         }
-
-        myPeer.addFilesToLocalList(txtShare.getText());
+        if (chkSpecific.isSelected()) {
+            buttonSelected = 0;
+            //opens new form and get the ips
+            
+            if (buttonSelected == 0) return;
+        } 
+        else {
+            myPeer.addFilesToLocalList(txtShare.getText(), null);
+        }
         txtShare.setText("");
         Helper.RefreshLocal();
 
@@ -420,6 +435,7 @@ public final class GUI extends javax.swing.JFrame {
     protected javax.swing.JButton btnRefresh;
     protected javax.swing.JButton btnShare;
     protected javax.swing.JButton btnUnshare;
+    private javax.swing.JCheckBox chkSpecific;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
