@@ -19,7 +19,7 @@ import java.util.Arrays;
 
 public class Peer {
 
-    private static final int PINGTIME = 3000;
+    private static final int PINGTIME = 6000;
     private static final int BUFFER_SIZE = 65536;
 
     //The port number used for internal communication

@@ -68,7 +68,7 @@ public final class GUI extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Filename", "Size", "IPAddress"
+                "Filename", "Size", "IP Address"
             }
         ) {
             Class[] types = new Class [] {
@@ -166,14 +166,14 @@ public final class GUI extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Filename", "Size", "Share to"
+                "Filename", "Size"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class
+                java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false
+                false, false
             };
 
             public Class getColumnClass(int columnIndex) {
