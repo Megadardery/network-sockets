@@ -1,12 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package data_packages;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -14,25 +10,20 @@ import javax.swing.table.DefaultTableModel;
  * @author MegaDardery
  */
 public class Helper {
-
+    
     static void RefreshLocal() {
-        String[] cols = {"Filename", "Size"};
-        DefaultTableModel tableModelL = new DefaultTableModel(cols, 0) {
-            @Override
-            public boolean isCellEditable(int r, int c) {
-                return false;
-            }
-        };
+        DefaultTableModel tableModelL = (DefaultTableModel) GUI.myGUI.tblLocal.getModel();
+        tableModelL.setRowCount(0);
         ArrayList<FileInfo> dispL = GUI.myGUI.myPeer.getLocalFiles();
         for (int i = 0; i < dispL.size(); ++i) {
             File fname = new File(dispL.get(i).filename);
             Object[] obj = {fname.getName(), Helper.getSizeInText(fname.length())};
-
+            
             tableModelL.addRow(obj);
         }
         GUI.myGUI.tblLocal.setModel(tableModelL);
     }
-
+    
     static String getSizeInText(long size) {
         int degree = 0;
         while (size > 1024) {
@@ -61,5 +52,18 @@ public class Helper {
                 break;
         }
         return size + extra;
+    }
+    
+    public static String getExtension(String fileName) {
+        String extension = "";
+        
+        int i = fileName.lastIndexOf('.');
+        int p = Math.max(fileName.lastIndexOf('/'), fileName.lastIndexOf('\\'));
+        
+        if (i > p) {
+            extension = fileName.substring(i + 1);
+        }
+        
+        return extension;
     }
 }

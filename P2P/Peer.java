@@ -29,8 +29,8 @@ public class Peer {
     private volatile ArrayList<FileInfo> ExternalFileList = new ArrayList<>();
 
     //holds list of files shared by current peer
-    private ArrayList<FileInfo> LocalFileList = new ArrayList<>();
-    private ArrayList<String[]> LocalFileListPeers = new ArrayList<>();
+    private final ArrayList<FileInfo> LocalFileList = new ArrayList<>();
+    private final ArrayList<String[]> LocalFileListPeers = new ArrayList<>();
 
     // Used for new peers to get list of files.
     private ServerSocket peerListener;

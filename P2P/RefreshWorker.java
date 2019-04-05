@@ -28,16 +28,11 @@ public class RefreshWorker extends SwingWorker {
         return null;
     }
 
-    String coln[] = {"Filename", "Size", "IP Address"};
-
     @Override
     protected void done() {
-        DefaultTableModel tableModelN = new DefaultTableModel(coln, 0) {
-            @Override
-            public boolean isCellEditable(int r, int c) {
-                return false;
-            }
-        };
+        DefaultTableModel tableModelN = (DefaultTableModel) GUI.myGUI.tblDownload.getModel();
+        tableModelN.setRowCount(0);
+
         ArrayList<FileInfo> disp = GUI.myGUI.myPeer.getAvailableFiles();
         for (int i = 0; i < disp.size(); ++i) {
             FileInfo curr = disp.get(i);
