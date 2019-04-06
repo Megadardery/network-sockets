@@ -86,7 +86,6 @@ public final class GUI extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        tblDownload.setColumnSelectionAllowed(true);
         tblDownload.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jScrollPane1.setViewportView(tblDownload);
         tblDownload.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
@@ -184,7 +183,6 @@ public final class GUI extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        tblLocal.setColumnSelectionAllowed(true);
         jScrollPane2.setViewportView(tblLocal);
         tblLocal.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
